@@ -1,0 +1,40 @@
+Student Database Management System usingMySQL
+
+Project Description
+This project demonstrates creating a MySQL database, creating a students table, inserting sample
+records, and retrieving them using SELECT.
+SQL Code
+Step 1: Create Database
+CREATE DATABASE student_db;
+USE student_db;
+Step 2: Create Students Table
+CREATE TABLE students (
+    student_id INT PRIMARY KEY,
+    student_name VARCHAR(50),
+    age INT,
+    gender VARCHAR(10),
+    department VARCHAR(50),
+    year_of_study INT,
+    email VARCHAR(100),
+    cgpa DECIMAL(3,2)
+);
+________________________________________
+Step 3: Insert Sample Data
+INSERT INTO students VALUES
+(101,'Arun',20,'Male','Computer Science',2,'arun@gmail.com',8.45),
+(102,'Priya',21,'Female','Information Technology',3,'priya@gmail.com',9.10),
+(103,'Karthik',19,'Male','Electronics',1,'karthik@gmail.com',7.95),
+(104,'Divya',22,'Female','Mechanical',4,'divya@gmail.com',8.70),
+(105,'Rahul',20,'Male','Civil',2,'rahul@gmail.com',8.15);
+
+Step 4: Retrieve Data
+SELECT * FROM students;
+
+Final Output
+ 
+student_id	   student_name	    age	       gender	     department       	           year_of_study	  email	                         cgpa
+101	           Arun	            20	       Male	     Computer Science	           2	                  arun@gmail.com	         8.45
+102	           Priya	    21	       Female	     Information Technology	   3	                  priya@gmail.com	         9.10
+103	           Karthik	    19	       Male	     Electronics	           1	                  karthik@gmail.com	         7.95
+104	           Divya	    22	       Female	     Mechanical	                   4	                  divya@gmail.com	         8.70
+105	           Rahul	    20	       Male	     Civil	                   2	                  rahul@gmail.com	         8.15
