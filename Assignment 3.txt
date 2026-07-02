@@ -1,0 +1,200 @@
+Part A-Theory
+
+1.What does TCL stand for?
+	TCL stand for Transaction control language.
+
+2.Name the TCL commands.
+	commit
+	rollback
+	savepoint
+	start transaction
+
+3.purpose of commit?
+	permanent saving option
+
+4.difference between commit and rollback
+	commit permanently save the changes and it cannot be undone and it is the end point of the transaction. 
+	rollback can cancel changes and it reverts the transaction.
+
+5. savepoint
+	it is a temporary save option so you can rollback to that point instead of undoing the entire transaction.
+
+6.DCL standsfor?
+	Data control language.
+
+7.DCL commands
+	GRAND
+	REVOKE
+
+8.Purpose of GRANT
+	GRANT gives permission to the user on database.
+
+9. What is the purpose of REVOKE?
+	REVOKE removes previously granted permissions from users.
+
+10. Can we rollback after COMMIT? Explain
+	no, once commit is done we can't do rollback.
+
+Part B-Setup
+
+CREATE TABLE Employee(
+    EmpID INT PRIMARY KEY,
+    EmpName VARCHAR(50),
+    Department VARCHAR(30),
+    Salary DECIMAL(10,2)
+);
+
+INSERT INTO Employee VALUES
+(101,'Rahul','IT',45000),
+(102,'Priya','HR',52000),
+(103,'Amit','Finance',60000),
+(104,'Sneha','IT',48000),
+(105,'John','HR',55000);
+
+SELECT * FROM Employee;
+
+Part C- TCL
+1.Increase Rahul's salary by ₹5000. Do not commit immediately. Verify the result. Rollback the transaction. What is Rahul's final salary?
+
+
+START TRANSACTION;
+UPDATE Employee SET Salary = Salary + 5000 WHERE EmpID = 101;
+SELECT * FROM Employee;
+ROLLBACK;
+SELECT * FROM Employee;
+
+
+Ans: Rahul's final salary is ₹45,000
+
+2.Increase every employee's salary by 10%. Commit the transaction. Verify the result.
+
+START TRANSACTION;
+UPDATE Employee SET Salary = Salary * 1.10 WHERE EmpID > 0;
+COMMIT;
+SELECT * FROM Employee;
+
+3.Increase Rahul's salary by ₹3000. Create SAVEPOINT sp1. Increase Priya's salary by ₹5000. Rollback to sp1. Which employee's salary is rolled back?
+
+START TRANSACTION;
+UPDATE Employee SET Salary = Salary + 3000 WHERE EmpID = 101;
+SAVEPOINT sp1;
+UPDATE Employee SET Salary = Salary + 5000 WHERE EmpID = 102;
+ROLLBACK TO sp1;
+SELECT * FROM Employee;
+COMMIT;
+
+Ans: Priya's salary is rollback.
+
+4.Delete all employees from the HR department. Rollback the transaction. How many HR employees remain?
+
+START TRANSACTION;
+DELETE FROM Employee WHERE EmpID IN (102, 105);
+SELECT * FROM Employee;
+ROLLBACK;
+SELECT * FROM Employee;
+
+Ans: 2 HR employees remain (Priya and John) because the ROLLBACK command restores the deleted records.
+
+5.Delete the employee from the Finance department. Commit the transaction. Try to rollback. Does the Finance employee return?
+
+START TRANSACTION;
+DELETE FROM Employee WHERE EmpID= 103;
+COMMIT;
+ROLLBACK;
+SELECT * FROM Employee;
+
+
+Ans:No. The Finance employee does not return because the COMMIT command permanently saves the deletion. After COMMIT, ROLLBACK cannot undo the changes.
+
+Part D- DCL
+
+1. Grant SELECT permission to student1
+
+GRANT SELECT ON Employee TO student1;
+	
+2. Grant INSERT permission to student1
+
+GRANT INSERT ON Employee TO student1;
+
+3. Grant UPDATE permission to student1
+
+GRANT UPDATE ON Employee TO student1;
+
+4. Revoke INSERT permission from student1
+
+REVOKE INSERT ON Employee FROM student1;
+
+5. Revoke all permissions from student1
+
+REVOKE ALL PRIVILEGES ON Employee FROM student1;
+
+Part E – Scenario Based
+
+1. A cashier accidentally updates 500 customer records before commit. Which TCL command should be used?
+	Ans: ROLLBACK
+
+2. Salary changes are verified and should become permanent. Which command should be used?
+	Ans: COMMIT
+
+3. Undo only the last set of changes without affecting earlier updates. Which command should be used?
+	Ans: ROLLBACK TO SAVEPOINT
+
+4. A new employee should only view employee records. Which DCL command will you use?
+	Ans:GRANT SELECT ON Employee TO student1;
+
+5. A user should no longer have permission to delete records. Which DCL command will you use?
+	Ans:REVOKE DELETE ON Employee FROM student1;
+
+Part F – Output Prediction
+1.
+START TRANSACTION;
+UPDATE Employee SET Salary = Salary + 5000 WHERE EmpID = 101;
+ROLLBACK;
+SELECT Salary FROM Employee WHERE EmpID = 101;
+
+Question: Will the updated or original salary be displayed?
+	Ans: The original salary (₹45,000) will be displayed because ROLLBACK cancels the update before it is committed.
+
+2.
+START TRANSACTION;
+UPDATE Employee SET Salary = Salary + 5000 WHERE EmpID = 101;
+COMMIT;
+ROLLBACK;
+
+Question: Is the salary restored? Why?
+	Ans No, the salary is not restored because COMMIT permanently saves the changes. ROLLBACK cannot undo a committed transaction.
+
+3.
+START TRANSACTION;
+UPDATE Employee SET Salary = Salary + 1000 WHERE EmpID = 101;
+SAVEPOINT A;
+UPDATE Employee SET Salary = Salary + 2000 WHERE EmpID = 102;
+ROLLBACK TO A;
+COMMIT;
+
+Question: Which employee receives the salary increment?
+	Ans: Rahul (EmpID 101) receives the ₹1,000 salary increment. Priya (EmpID 102) does not receive the ₹2,000 increment because it is rolled back.
+
+
+Final questions
+1. Increase all IT salaries by 15%.
+	UPDATE Employee SET Salary = Salary * 1.15 WHERE Department = 'IT';
+
+2. Create a SAVEPOINT.
+	SAVEPOINT sp1;
+
+3. Increase all HR salaries by ₹2,000.
+	UPDATE Employee SET Salary = Salary + 2000 WHERE Department = 'HR';
+
+4. Rollback only the HR update.
+	ROLLBACK TO sp1;
+
+
+5. Commit the remaining changes.
+	COMMIT;
+
+6. Grant SELECT and UPDATE permissions to student1.
+	GRANT SELECT, UPDATE ON Employee TO student1;
+
+7. Revoke only the UPDATE permission from student1.
+	REVOKE UPDATE ON Employee FROM student1;
