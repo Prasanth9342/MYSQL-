@@ -1,0 +1,1329 @@
+SQL JOINS (E-COMMERCE DATABASE) 
+ 
+CREATE DATABASE ecommerce_db; 
+USE ecommerce_db; 
+ 
+CREATE TABLE Customers ( 
+    CustomerID INT PRIMARY KEY, 
+    CustomerName VARCHAR(100) NOT NULL, 
+    Email VARCHAR(100) UNIQUE, 
+    Phone VARCHAR(15), 
+    City VARCHAR(50) 
+); 
+ 
+CREATE TABLE Employees ( 
+    EmployeeID INT PRIMARY KEY, 
+    EmployeeName VARCHAR(100) NOT NULL, 
+    JobTitle VARCHAR(50), 
+    HireDate DATE 
+); 
+ 
+CREATE TABLE Shippers ( 
+    ShipperID INT PRIMARY KEY, 
+    ShipperName VARCHAR(100) NOT NULL, 
+    Phone VARCHAR(15) 
+); 
+ 
+CREATE TABLE Categories ( 
+    CategoryID INT PRIMARY KEY, 
+    CategoryName VARCHAR(100) NOT NULL 
+ 
+); 
+ 
+CREATE TABLE Suppliers ( 
+    SupplierID INT PRIMARY KEY, 
+    SupplierName VARCHAR(100) NOT NULL, 
+    City VARCHAR(50), 
+    Phone VARCHAR(15) 
+); 
+ 
+CREATE TABLE Products ( 
+    ProductID INT PRIMARY KEY, 
+    ProductName VARCHAR(100) NOT NULL, 
+    CategoryID INT, 
+    SupplierID INT, 
+    Price DECIMAL(10,2) NOT NULL, 
+    Stock INT, 
+ 
+    FOREIGN KEY (CategoryID) 
+    REFERENCES Categories(CategoryID), 
+ 
+    FOREIGN KEY (SupplierID) 
+    REFERENCES Suppliers(SupplierID) 
+); 
+ 
+CREATE TABLE Orders ( 
+    OrderID INT PRIMARY KEY, 
+    CustomerID INT, 
+    EmployeeID INT, 
+    ShipperID INT, 
+    OrderDate DATE, 
+    Status VARCHAR(30), 
+ 
+    FOREIGN KEY (CustomerID) 
+    REFERENCES Customers(CustomerID), 
+ 
+    FOREIGN KEY (EmployeeID) 
+    REFERENCES Employees(EmployeeID), 
+ 
+    FOREIGN KEY (ShipperID) 
+    REFERENCES Shippers(ShipperID) 
+); 
+ 
+CREATE TABLE Order_Items ( 
+    OrderItemID INT PRIMARY KEY, 
+    OrderID INT, 
+    ProductID INT, 
+    Quantity INT, 
+    UnitPrice DECIMAL(10,2), 
+ 
+    FOREIGN KEY (OrderID) 
+    REFERENCES Orders(OrderID), 
+ 
+    FOREIGN KEY (ProductID) 
+    REFERENCES Products(ProductID) 
+); 
+ 
+INSERT INTO Suppliers VALUES 
+(1,'ABC Suppliers','Chennai','9876543210'), 
+(2,'Home Furniture','Coimbatore','9876543211'), 
+(3,'Tech World','Bangalore','9876543212'), 
+(4,'Fresh Foods','Madurai','9876543213'); 
+ 
+INSERT INTO Categories VALUES 
+(1,'Electronics'), 
+(2,'Furniture'), 
+(3,'Stationery'), 
+(4,'Groceries'); 
+ 
+INSERT INTO Customers VALUES 
+(101,'John','john@gmail.com','9876500001','Chennai'), 
+(102,'Priya','priya@gmail.com','9876500002','Salem'), 
+(103,'Rahul','rahul@gmail.com','9876500003','Coimbatore'), 
+(104,'Anjali','anjali@gmail.com','9876500004','Madurai'), 
+(105,'Karan','karan@gmail.com','9876500005','Trichy'); 
+ 
+INSERT INTO Employees VALUES 
+(201,'David','Sales Executive','2022-01-10'), 
+(202,'Sarah','Sales Executive','2021-05-15'), 
+(203,'James','Manager','2020-09-20'); 
+ 
+INSERT INTO Shippers VALUES 
+(301,'Blue Dart','9000000001'), 
+(302,'DTDC','9000000002'), 
+(303,'Delhivery','9000000003'); 
+ 
+INSERT INTO Products VALUES 
+(401,'Laptop',1,1,65000,20), 
+(402,'Mouse',1,3,500,100), 
+(403,'Keyboard',1,3,1200,80), 
+(404,'Chair',2,2,3500,30), 
+(405,'Table',2,2,7000,15), 
+(406,'Notebook',3,1,80,200), 
+(407,'Pen',3,1,20,500), 
+(408,'Rice Bag',4,4,1200,50); 
+ 
+INSERT INTO Orders VALUES 
+(1001,101,201,301,'2025-06-10','Delivered'), 
+(1002,102,202,302,'2025-06-12','Delivered'), 
+(1003,103,201,301,'2025-06-15','Pending'), 
+(1004,101,203,303,'2025-06-18','Shipped'), 
+(1005,104,202,302,'2025-06-20','Delivered'); 
+ 
+INSERT INTO Order_Items VALUES 
+(1,1001,401,1,65000), 
+(2,1001,402,2,500), 
+(3,1002,404,2,3500), 
+(4,1002,407,5,20), 
+(5,1003,405,1,7000), 
+(6,1003,406,10,80), 
+(7,1004,401,1,65000), 
+(8,1004,403,1,1200), 
+(9,1005,408,2,1200), 
+(10,1005,407,10,20); 
+ 
+ 
+ 
+1. Display all customers with their orders. 
+SELECT c.CustomerID,c.CustomerName,o.OrderID,o.OrderDate 
+FROM Customers c 
+INNER JOIN Orders o ON c.CustomerID = o.CustomerID; 
+2. Display order details with customer names. 
+SELECT o.OrderID,c.CustomerName,o.OrderDate,o.Status 
+FROM Orders o 
+INNER JOIN Customers c ON o.CustomerID = c.CustomerID; 
+3. Show every product with its category. 
+SELECT p.ProductID,p.ProductName,c.CategoryName 
+FROM Products p 
+INNER JOIN Categories c ON p.CategoryID = c.CategoryID; 
+4. Display products with supplier names. 
+SELECT p.ProductName,s.SupplierName 
+FROM Products p 
+INNER JOIN Suppliers s ON p.SupplierID = s.SupplierID; 
+5. Show orders handled by each employee. 
+SELECT e.EmployeeName,o.OrderID,o.OrderDate 
+FROM Employees e 
+INNER JOIN Orders o ON e.EmployeeID = o.EmployeeID; 
+6. Display orders with shipper names. 
+SELECT o.OrderID,s.ShipperName 
+FROM Orders o 
+INNER JOIN Shippers s ON o.ShipperID = s.ShipperID; 
+7. Show customers who placed at least one order. 
+SELECT DISTINCT c.CustomerName 
+FROM Customers c 
+INNER JOIN Orders o ON c.CustomerID = o.CustomerID 
+WHERE o.Status = 'Delivered'; 
+8. Display products purchased in each order. 
+SELECT oi.OrderID,p.ProductName 
+FROM Order_Items oi 
+INNER JOIN Products p ON oi.ProductID = p.ProductID; 
+9. Display product name and quantity ordered. 
+SELECT p.ProductName,oi.Quantity 
+FROM Products p 
+INNER JOIN Order_Items oi ON p.ProductID = oi.ProductID; 
+10. Display employee names and customer names. 
+SELECT e.EmployeeName,c.CustomerName 
+FROM Orders o 
+INNER JOIN Employees e ON o.EmployeeID = e.EmployeeID 
+INNER JOIN Customers c ON o.CustomerID = c.CustomerID; 
+11. Display customer, order, product, quantity and price. 
+SELECT c.CustomerName,o.OrderID,p.ProductName,oi.Quantity,oi.UnitPrice 
+FROM Customers c 
+JOIN Orders o ON c.CustomerID = o.CustomerID 
+JOIN Order_Items oi ON o.OrderID = oi.OrderID 
+JOIN Products p ON oi.ProductID = p.ProductID; 
+12. Display supplier name with products sold. 
+SELECT DISTINCT s.SupplierName,p.ProductName 
+FROM Suppliers s 
+JOIN Products p ON s.SupplierID = p.SupplierID 
+JOIN Order_Items oi ON p.ProductID = oi.ProductID; 
+13. Display category-wise product count. 
+SELECT c.CategoryName,COUNT(p.ProductID) AS ProductCount 
+FROM Categories c 
+JOIN Products p ON c.CategoryID = p.CategoryID 
+GROUP BY c.CategoryName; 
+14. Find total orders for each customer. 
+SELECT c.CustomerName,COUNT(o.OrderID) AS TotalOrders 
+FROM Customers c 
+LEFT JOIN Orders o ON c.CustomerID = o.CustomerID 
+GROUP BY c.CustomerName; 
+15. Find total sales by employee. 
+SELECT e.EmployeeName,SUM(oi.Quantity * oi.UnitPrice) AS TotalSales 
+FROM Employees e 
+JOIN Orders o ON e.EmployeeID = o.EmployeeID 
+JOIN Order_Items oi ON o.OrderID = oi.OrderID 
+GROUP BY e.EmployeeName; 
+16. Find total revenue by category. 
+SELECT c.CategoryName,SUM(oi.Quantity * oi.UnitPrice) AS Revenue 
+FROM Categories c 
+JOIN Products p ON c.CategoryID = p.CategoryID 
+JOIN Order_Items oi ON p.ProductID = oi.ProductID 
+GROUP BY c.CategoryName; 
+17. Display the most expensive product in every category. 
+SELECT c.CategoryName,p.ProductName,p.Price 
+FROM Products p 
+JOIN Categories c ON p.CategoryID = c.CategoryID 
+WHERE (p.CategoryID,p.Price) IN 
+( 
+SELECT CategoryID,MAX(Price) 
+FROM Products 
+GROUP BY CategoryID 
+); 
+18. Find products never ordered. 
+SELECT p.ProductName 
+FROM Products p 
+LEFT JOIN Order_Items oi ON p.ProductID = oi.ProductID 
+WHERE oi.ProductID IS NULL; 
+19. Find customers who never placed orders. 
+SELECT c.CustomerName 
+FROM Customers c 
+LEFT JOIN Orders o ON c.CustomerID = o.CustomerID 
+WHERE o.CustomerID IS NULL; 
+20. Display suppliers without products. 
+SELECT s.SupplierName 
+FROM Suppliers s 
+LEFT JOIN Products p ON s.SupplierID = p.SupplierID 
+WHERE p.SupplierID IS NULL; 
+21. Find top five customers by spending. 
+SELECT c.CustomerName,SUM(oi.Quantity * oi.UnitPrice) AS TotalSpending 
+FROM Customers c 
+JOIN Orders o ON c.CustomerID = o.CustomerID 
+JOIN Order_Items oi ON o.OrderID = oi.OrderID 
+GROUP BY c.CustomerName 
+ORDER BY TotalSpending DESC 
+LIMIT 5; 
+22. Display monthly sales by employee. 
+SELECT e.EmployeeName,MONTH(o.OrderDate) AS Month, 
+SUM(oi.Quantity * oi.UnitPrice) AS TotalSales 
+FROM Employees e 
+JOIN Orders o ON e.EmployeeID = o.EmployeeID 
+JOIN Order_Items oi ON o.OrderID = oi.OrderID 
+GROUP BY e.EmployeeName,MONTH(o.OrderDate); 
+23. Find the best-selling product. 
+SELECT p.ProductName,SUM(oi.Quantity) AS TotalSold 
+FROM Products p 
+JOIN Order_Items oi ON p.ProductID = oi.ProductID 
+GROUP BY p.ProductName 
+ORDER BY TotalSold DESC 
+LIMIT 1; 
+24. Display supplier-wise revenue. 
+SELECT s.SupplierName,SUM(oi.Quantity * oi.UnitPrice) AS Revenue 
+FROM Suppliers s 
+JOIN Products p ON s.SupplierID = p.SupplierID 
+JOIN Order_Items oi ON p.ProductID = oi.ProductID 
+GROUP BY s.SupplierName; 
+25. Find average order value per customer. 
+SELECT c.CustomerName,AVG(OrderTotal) AS AverageOrderValue 
+FROM Customers c 
+JOIN Orders o ON c.CustomerID = o.CustomerID 
+JOIN 
+( 
+SELECT OrderID,SUM(Quantity * UnitPrice) AS OrderTotal 
+FROM Order_Items 
+GROUP BY OrderID 
+) ot 
+ON o.OrderID = ot.OrderID 
+GROUP BY c.CustomerName; 
+26. Display orders with more than three products. 
+SELECT OrderID,COUNT(ProductID) AS TotalProducts 
+FROM Order_Items 
+GROUP BY OrderID 
+HAVING COUNT(ProductID) > 3; 
+27. Find customers ordering from multiple categories. 
+SELECT c.CustomerName,COUNT(DISTINCT p.CategoryID) AS CategoriesOrdered 
+FROM Customers c 
+JOIN Orders o ON c.CustomerID = o.CustomerID 
+JOIN Order_Items oi ON o.OrderID = oi.OrderID 
+JOIN Products p ON oi.ProductID = p.ProductID 
+GROUP BY c.CustomerName 
+HAVING COUNT(DISTINCT p.CategoryID) > 1; 
+28. Display categories with no sales. 
+SELECT c.CategoryName 
+FROM Categories c 
+LEFT JOIN Products p ON c.CategoryID = p.CategoryID 
+LEFT JOIN Order_Items oi ON p.ProductID = oi.ProductID 
+WHERE oi.ProductID IS NULL; 
+29. Display the highest-value order. 
+SELECT o.OrderID,SUM(oi.Quantity * oi.UnitPrice) AS OrderValue 
+FROM Orders o 
+JOIN Order_Items oi ON o.OrderID = oi.OrderID 
+GROUP BY o.OrderID 
+ORDER BY OrderValue DESC 
+LIMIT 1; 
+30. Generate a complete invoice report using all tables. 
+SELECT o.OrderID,c.CustomerName,e.EmployeeName,s.ShipperName, 
+p.ProductName,oi.Quantity,oi.UnitPrice, 
+(oi.Quantity * oi.UnitPrice) AS TotalAmount 
+FROM Orders o 
+JOIN Customers c ON o.CustomerID = c.CustomerID 
+JOIN Employees e ON o.EmployeeID = e.EmployeeID 
+JOIN Shippers s ON o.ShipperID = s.ShipperID 
+JOIN Order_Items oi ON o.OrderID = oi.OrderID 
+JOIN Products p ON oi.ProductID = p.ProductID 
+ORDER BY o.OrderID; 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+MYSQL SUBQUERIES: 
+CREATE DATABASE banking_db; 
+USE banking_db; 
+CREATE TABLE Branches ( 
+    branch_id VARCHAR(10) PRIMARY KEY, 
+    branch_name VARCHAR(100) NOT NULL, 
+    city VARCHAR(50) NOT NULL 
+); 
+ 
+CREATE TABLE Customers ( 
+    customer_id VARCHAR(10) PRIMARY KEY, 
+    customer_name VARCHAR(100) NOT NULL, 
+    city VARCHAR(50) 
+); 
+ 
+CREATE TABLE Accounts ( 
+    account_no VARCHAR(10) PRIMARY KEY, 
+    customer_id VARCHAR(10), 
+    branch_id VARCHAR(10), 
+    account_type VARCHAR(20), 
+    balance DECIMAL(12,2), 
+    FOREIGN KEY (customer_id) REFERENCES Customers(customer_id), 
+    FOREIGN KEY (branch_id) REFERENCES Branches(branch_id) 
+); 
+ 
+CREATE TABLE Transactions ( 
+    transaction_id VARCHAR(10) PRIMARY KEY, 
+    account_no VARCHAR(10), 
+    transaction_type VARCHAR(20), 
+    amount DECIMAL(12,2), 
+    transaction_date DATE, 
+    FOREIGN KEY (account_no) REFERENCES Accounts(account_no) 
+); 
+ 
+CREATE TABLE Loans ( 
+    loan_id VARCHAR(10) PRIMARY KEY, 
+    customer_id VARCHAR(10), 
+    loan_type VARCHAR(50), 
+    loan_amount DECIMAL(12,2), 
+    FOREIGN KEY (customer_id) REFERENCES Customers(customer_id) 
+); 
+ 
+CREATE TABLE Loan_Payments ( 
+    payment_id VARCHAR(10) PRIMARY KEY, 
+    loan_id VARCHAR(10), 
+    payment_amount DECIMAL(12,2), 
+    payment_date DATE, 
+    FOREIGN KEY (loan_id) REFERENCES Loans(loan_id) 
+); 
+ 
+INSERT INTO Branches (branch_id, branch_name, city) VALUES 
+('BR001','Chennai Main','Chennai'), 
+('BR002','Anna Nagar','Chennai'), 
+('BR003','Bangalore Central','Bangalore'), 
+('BR004','Hyderabad City','Hyderabad'), 
+('BR005','Mumbai West','Mumbai'); 
+ 
+INSERT INTO Customers (customer_id, customer_name, city) VALUES 
+('CUS001','Ahmed','Chennai'), 
+('CUS002','John','Bangalore'), 
+('CUS003','Sarah','Hyderabad'), 
+('CUS004','David','Mumbai'), 
+('CUS005','Priya','Chennai'), 
+('CUS006','Rahul','Coimbatore'), 
+('CUS007','Fatima','Delhi'), 
+('CUS008','Meena','Salem'), 
+('CUS009','Kumar','Madurai'), 
+('CUS010','Anita','Pune'), 
+('CUS011','Ravi','Trichy'), 
+('CUS012','Ayesha','Kochi'); 
+ 
+INSERT INTO Accounts (account_no, customer_id, branch_id, account_type, balance) VALUES 
+('ACC1001','CUS001','BR001','Savings',85000), 
+('ACC1002','CUS002','BR003','Savings',45000), 
+('ACC1003','CUS003','BR004','Current',120000), 
+('ACC1004','CUS004','BR005','Savings',65000), 
+('ACC1005','CUS005','BR002','Savings',98000), 
+('ACC1006','CUS006','BR001','Current',150000), 
+('ACC1007','CUS007','BR004','Savings',40000), 
+('ACC1008','CUS008','BR001','Savings',76000), 
+('ACC1009','CUS009','BR002','Current',110000), 
+('ACC1010','CUS010','BR003','Savings',53000), 
+('ACC1011','CUS011','BR005','Savings',30000), 
+('ACC1012','CUS012','BR004','Current',170000); 
+ 
+INSERT INTO Transactions (transaction_id, account_no, transaction_type, amount, transaction_date) 
+VALUES 
+('TX001','ACC1001','Deposit',10000,'2025-01-02'), 
+('TX002','ACC1001','Withdrawal',5000,'2025-01-05'), 
+('TX003','ACC1002','Deposit',20000,'2025-01-07'), 
+('TX004','ACC1003','Withdrawal',15000,'2025-01-10'), 
+('TX005','ACC1004','Deposit',8000,'2025-01-12'), 
+('TX006','ACC1005','Withdrawal',3000,'2025-01-15'), 
+('TX007','ACC1006','Deposit',25000,'2025-01-18'), 
+('TX008','ACC1007','Deposit',12000,'2025-01-20'), 
+('TX009','ACC1008','Withdrawal',7000,'2025-01-22'), 
+('TX010','ACC1009','Deposit',50000,'2025-01-25'); 
+ 
+INSERT INTO Loans (loan_id, customer_id, loan_type, loan_amount) VALUES 
+('LN001','CUS001','Home Loan',2500000), 
+('LN002','CUS003','Car Loan',800000), 
+('LN003','CUS005','Education Loan',600000), 
+('LN004','CUS007','Personal Loan',300000), 
+('LN005','CUS010','Business Loan',1500000), 
+('LN006','CUS012','Home Loan',3200000); 
+ 
+INSERT INTO Loan_Payments (payment_id, loan_id, payment_amount, payment_date) VALUES 
+('PAY001','LN001',50000,'2025-01-15'), 
+('PAY002','LN001',50000,'2025-02-15'), 
+('PAY003','LN002',25000,'2025-01-20'), 
+('PAY004','LN003',20000,'2025-01-25'), 
+('PAY005','LN004',15000,'2025-01-28'), 
+('PAY006','LN005',60000,'2025-02-02'), 
+('PAY007','LN006',70000,'2025-02-05'), 
+('PAY008','LN006',70000,'2025-03-05'); 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+1. Find the customer with the highest account balance. 
+SELECT customer_name 
+FROM Customers 
+WHERE customer_id = ( 
+    SELECT customer_id 
+    FROM Accounts 
+    WHERE balance = ( 
+        SELECT MAX(balance) 
+        FROM Accounts 
+    ) 
+); 
+2. Find the account with the minimum balance. 
+SELECT account_no, balance 
+FROM Accounts 
+WHERE balance = ( 
+    SELECT MIN(balance) 
+    FROM Accounts 
+); 
+3. Find customers whose balance is greater than the average balance. 
+SELECT customer_name 
+FROM Customers 
+WHERE customer_id IN ( 
+    SELECT customer_id 
+    FROM Accounts 
+    WHERE balance > ( 
+        SELECT AVG(balance) 
+        FROM Accounts 
+    ) 
+); 
+4. Find customers whose balance is less than the maximum balance. 
+SELECT customer_name 
+FROM Customers 
+WHERE customer_id IN ( 
+    SELECT customer_id 
+    FROM Accounts 
+    WHERE balance < ( 
+        SELECT MAX(balance) 
+        FROM Accounts 
+    ) 
+); 
+5. Display the account(s) having the second highest balance. 
+SELECT account_no, balance 
+FROM Accounts 
+WHERE balance = ( 
+    SELECT MAX(balance) 
+    FROM Accounts 
+    WHERE balance < ( 
+        SELECT MAX(balance) 
+        FROM Accounts 
+    ) 
+); 
+6. Find customers who have taken a loan. 
+SELECT customer_name 
+FROM Customers 
+WHERE customer_id IN ( 
+    SELECT customer_id 
+    FROM Loans 
+); 
+7. Find customers who have not taken any loan. 
+SELECT customer_name 
+FROM Customers 
+WHERE customer_id NOT IN ( 
+    SELECT customer_id 
+    FROM Loans 
+); 
+8. Find accounts belonging to Chennai branches. 
+SELECT account_no 
+FROM Accounts 
+WHERE branch_id IN ( 
+    SELECT branch_id 
+    FROM Branches 
+    WHERE city = 'Chennai' 
+); 
+9. Find customers whose accounts are in Chennai branches. 
+SELECT customer_name 
+FROM Customers 
+WHERE customer_id IN ( 
+    SELECT customer_id 
+    FROM Accounts 
+    WHERE branch_id IN ( 
+        SELECT branch_id 
+        FROM Branches 
+        WHERE city='Chennai' 
+    ) 
+); 
+10. Display customers who have transactions greater than ₹20,000. 
+SELECT customer_name 
+FROM Customers 
+WHERE customer_id IN ( 
+    SELECT customer_id 
+    FROM Accounts 
+    WHERE account_no IN ( 
+        SELECT account_no 
+        FROM Transactions 
+        WHERE amount > 20000 
+    ) 
+); 
+11. Find customers whose balance is higher than the average balance of their branch. 
+SELECT c.customer_name, a.balance 
+FROM Customers c 
+JOIN Accounts a ON c.customer_id = a.customer_id 
+WHERE a.balance > 
+( 
+    SELECT AVG(balance) 
+    FROM Accounts 
+    WHERE branch_id = a.branch_id 
+); 
+12. Find branches with more accounts than the average branch. 
+SELECT branch_name 
+FROM Branches 
+WHERE branch_id IN 
+( 
+    SELECT branch_id 
+    FROM Accounts 
+    GROUP BY branch_id 
+    HAVING COUNT(*) > 
+    ( 
+        SELECT AVG(account_count) 
+        FROM 
+        ( 
+            SELECT COUNT(*) AS account_count 
+            FROM Accounts 
+            GROUP BY branch_id 
+        ) AS avg_branch 
+    ) 
+); 
+13. Find customers whose total transaction amount exceeds their current balance. 
+SELECT c.customer_name 
+FROM Customers c 
+JOIN Accounts a ON c.customer_id = a.customer_id 
+WHERE 
+( 
+    SELECT SUM(amount) 
+    FROM Transactions t 
+    WHERE t.account_no = a.account_no 
+) > a.balance; 
+14. Display accounts with more transactions than the average account. 
+SELECT account_no 
+FROM Transactions 
+GROUP BY account_no 
+HAVING COUNT(*) > 
+( 
+    SELECT AVG(trans_count) 
+    FROM 
+    ( 
+        SELECT COUNT(*) AS trans_count 
+        FROM Transactions 
+        GROUP BY account_no 
+    ) AS avg_trans 
+); 
+15. Find loan payments above the average payment for the same loan. 
+SELECT payment_id, loan_id, payment_amount 
+FROM Loan_Payments lp 
+WHERE payment_amount > 
+( 
+    SELECT AVG(payment_amount) 
+    FROM Loan_Payments 
+    WHERE loan_id = lp.loan_id 
+); 
+16. Find customers who have transactions (EXISTS). 
+SELECT customer_name 
+FROM Customers c 
+WHERE EXISTS 
+( 
+    SELECT * 
+    FROM Accounts a 
+    JOIN Transactions t 
+    ON a.account_no = t.account_no 
+    WHERE a.customer_id = c.customer_id 
+); 
+17. Find customers with no transactions (NOT EXISTS). 
+SELECT customer_name 
+FROM Customers c 
+WHERE NOT EXISTS 
+( 
+    SELECT * 
+    FROM Accounts a 
+    JOIN Transactions t 
+    ON a.account_no = t.account_no 
+    WHERE a.customer_id = c.customer_id 
+); 
+18. Find branches with at least one account. 
+SELECT branch_name 
+FROM Branches b 
+WHERE EXISTS 
+( 
+    SELECT * 
+    FROM Accounts a 
+    WHERE a.branch_id = b.branch_id 
+); 
+19. Find branches with no accounts. 
+SELECT branch_name 
+FROM Branches b 
+WHERE NOT EXISTS 
+( 
+    SELECT * 
+    FROM Accounts a 
+    WHERE a.branch_id = b.branch_id 
+); 
+20. Find loans that have received at least one payment. 
+SELECT loan_id, loan_type 
+FROM Loans l 
+WHERE EXISTS 
+( 
+    SELECT * 
+    FROM Loan_Payments lp 
+    WHERE lp.loan_id = l.loan_id 
+); 
+21. Find customers in Chennai branches using IN. 
+SELECT customer_name 
+FROM Customers 
+WHERE customer_id IN 
+( 
+    SELECT customer_id 
+    FROM Accounts 
+    WHERE branch_id IN 
+    ( 
+        SELECT branch_id 
+        FROM Branches 
+        WHERE city='Chennai' 
+    ) 
+); 
+22. Find customers not having loans using NOT IN. 
+SELECT customer_name 
+FROM Customers 
+WHERE customer_id NOT IN 
+( 
+    SELECT customer_id 
+    FROM Loans 
+); 
+23. Find accounts with balances greater than ANY account in Mumbai. 
+SELECT account_no, balance 
+FROM Accounts 
+WHERE balance > ANY 
+( 
+    SELECT balance 
+    FROM Accounts 
+    WHERE branch_id IN 
+    ( 
+        SELECT branch_id 
+        FROM Branches 
+        WHERE city = 'Mumbai' 
+    ) 
+); 
+24. Find accounts with balances greater than ALL savings accounts. 
+SELECT account_no, balance 
+FROM Accounts 
+WHERE balance > ALL 
+( 
+    SELECT balance 
+    FROM Accounts 
+    WHERE account_type='Savings' 
+); 
+25. Find branches whose average balance exceeds ALL branch averages. 
+SELECT branch_name 
+FROM Branches 
+WHERE branch_id = 
+( 
+    SELECT branch_id 
+    FROM Accounts 
+    GROUP BY branch_id 
+    HAVING AVG(balance) >= ALL 
+    ( 
+        SELECT AVG(balance) 
+        FROM Accounts 
+        GROUP BY branch_id 
+    ) 
+); 
+26. Find the customer with the highest total transaction amount. 
+SELECT customer_name 
+FROM Customers 
+WHERE customer_id = 
+( 
+    SELECT customer_id 
+    FROM Accounts 
+    WHERE account_no = 
+    ( 
+        SELECT account_no 
+        FROM Transactions 
+        GROUP BY account_no 
+        ORDER BY SUM(amount) DESC 
+        LIMIT 1 
+    ) 
+); 
+27. Find customers who have both an account and a loan. 
+SELECT customer_name 
+FROM Customers 
+WHERE customer_id IN 
+( 
+    SELECT customer_id FROM Accounts 
+) 
+AND customer_id IN 
+( 
+    SELECT customer_id FROM Loans 
+); 
+28. Display the branch with the highest total deposits. 
+SELECT branch_name 
+FROM Branches 
+WHERE branch_id = 
+( 
+    SELECT branch_id 
+    FROM Accounts 
+    WHERE account_no IN 
+    ( 
+        SELECT account_no 
+        FROM Transactions 
+        WHERE transaction_type='Deposit' 
+    ) 
+    GROUP BY branch_id 
+    ORDER BY SUM(balance) DESC 
+    LIMIT 1 
+); 
+29. Find customers whose loan amount is above the average loan amount. 
+SELECT customer_name 
+FROM Customers 
+WHERE customer_id IN 
+( 
+    SELECT customer_id 
+    FROM Loans 
+    WHERE loan_amount > 
+    ( 
+        SELECT AVG(loan_amount) 
+        FROM Loans 
+    ) 
+); 
+30. Generate a customer banking report using subqueries. 
+SELECT 
+customer_name, 
+( 
+SELECT balance 
+FROM Accounts 
+WHERE Accounts.customer_id = Customers.customer_id 
+) AS Balance, 
+( 
+SELECT loan_amount 
+FROM Loans 
+WHERE Loans.customer_id = Customers.customer_id 
+) AS Loan_Amount; 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+SQL CTE, JOINS AND SUBQUERIES (HOAPITAL MANAGEMENT SYSTEM) 
+ 
+CREATE DATABASE hospital_db; 
+ 
+USE hospital_db; 
+ 
+1. Departments Table 
+CREATE TABLE Departments 
+( 
+    department_id VARCHAR(10) PRIMARY KEY, 
+    department_name VARCHAR(50) NOT NULL 
+); 
+ 
+2. Doctors Table 
+CREATE TABLE Doctors 
+( 
+    doctor_id VARCHAR(10) PRIMARY KEY, 
+    doctor_name VARCHAR(100) NOT NULL, 
+    department_id VARCHAR(10), 
+    specialization VARCHAR(100), 
+    FOREIGN KEY (department_id) 
+    REFERENCES Departments(department_id) 
+); 
+ 
+3. Patients Table 
+CREATE TABLE Patients 
+( 
+    patient_id VARCHAR(10) PRIMARY KEY, 
+    patient_name VARCHAR(100), 
+    gender VARCHAR(10), 
+    city VARCHAR(50), 
+    age INT 
+); 
+ 
+4. Appointments Table 
+CREATE TABLE Appointments 
+( 
+    appointment_id VARCHAR(10) PRIMARY KEY, 
+    patient_id VARCHAR(10), 
+    doctor_id VARCHAR(10), 
+    appointment_date DATE, 
+    FOREIGN KEY (patient_id) 
+    REFERENCES Patients(patient_id), 
+    FOREIGN KEY (doctor_id) 
+    REFERENCES Doctors(doctor_id) 
+); 
+ 
+5. Treatments Table 
+CREATE TABLE Treatments 
+( 
+    treatment_id VARCHAR(10) PRIMARY KEY, 
+    appointment_id VARCHAR(10), 
+    treatment_name VARCHAR(100), 
+    cost DECIMAL(10,2), 
+    FOREIGN KEY (appointment_id) 
+    REFERENCES Appointments(appointment_id) 
+); 
+ 
+6. Medicines Table 
+CREATE TABLE Medicines 
+( 
+    medicine_id VARCHAR(10) PRIMARY KEY, 
+    medicine_name VARCHAR(100), 
+    price DECIMAL(10,2) 
+); 
+ 
+7. Prescriptions Table 
+CREATE TABLE Prescriptions 
+( 
+    prescription_id VARCHAR(10) PRIMARY KEY, 
+    appointment_id VARCHAR(10), 
+    medicine_id VARCHAR(10), 
+    quantity INT, 
+    FOREIGN KEY (appointment_id) 
+    REFERENCES Appointments(appointment_id), 
+    FOREIGN KEY (medicine_id) 
+    REFERENCES Medicines(medicine_id) 
+); 
+ 
+8. Billing Table 
+CREATE TABLE Billing 
+( 
+    bill_id VARCHAR(10) PRIMARY KEY, 
+    appointment_id VARCHAR(10), 
+    total_amount DECIMAL(10,2), 
+    payment_status VARCHAR(20), 
+    FOREIGN KEY (appointment_id) 
+    REFERENCES Appointments(appointment_id) 
+); 
+ 
+Insert into Departments 
+INSERT INTO Departments 
+VALUES 
+('DEP01','Cardiology'), 
+('DEP02','Neurology'), 
+('DEP03','Orthopedics'), 
+('DEP04','General Medicine'), 
+('DEP05','Pediatrics'); 
+ 
+Insert into Doctors 
+INSERT INTO Doctors 
+VALUES 
+('DOC001','Dr. Arun','DEP01','Cardiologist'), 
+('DOC002','Dr. Priya','DEP02','Neurologist'), 
+('DOC003','Dr. David','DEP03','Orthopedic'), 
+('DOC004','Dr. Meena','DEP04','General Physician'), 
+('DOC005','Dr. Ahmed','DEP05','Pediatrician'); 
+ 
+Insert into Patients 
+INSERT INTO Patients 
+VALUES 
+('PAT001','John','Male','Chennai',35), 
+('PAT002','Sarah','Female','Hyderabad',28), 
+('PAT003','David','Male','Mumbai',45), 
+('PAT004','Fatima','Female','Chennai',30), 
+('PAT005','Rahul','Male','Bangalore',40), 
+('PAT006','Anita','Female','Delhi',32), 
+('PAT007','Kumar','Male','Coimbatore',29), 
+('PAT008','Priya','Female','Salem',26), 
+('PAT009','Ravi','Male','Madurai',38), 
+('PAT010','Ayesha','Female','Kochi',34); 
+ 
+Insert into Appointments 
+INSERT INTO Appointments 
+VALUES 
+('APP001','PAT001','DOC001','2025-01-10'), 
+('APP002','PAT002','DOC002','2025-01-11'), 
+('APP003','PAT003','DOC003','2025-01-12'), 
+('APP004','PAT004','DOC004','2025-01-13'), 
+('APP005','PAT005','DOC001','2025-01-15'), 
+('APP006','PAT006','DOC005','2025-01-18'), 
+('APP007','PAT007','DOC004','2025-01-20'), 
+('APP008','PAT008','DOC003','2025-01-22'); 
+ 
+Insert into Treatments 
+INSERT INTO Treatments 
+VALUES 
+('TR001','APP001','ECG',2500), 
+('TR002','APP002','Brain Scan',8000), 
+('TR003','APP003','Bone Surgery',55000), 
+('TR004','APP004','General Checkup',1200), 
+('TR005','APP005','Heart Scan',6000), 
+('TR006','APP006','Vaccination',1500), 
+('TR007','APP007','Blood Test',900), 
+('TR008','APP008','X-Ray',1800); 
+ 
+Insert into Medicines 
+INSERT INTO Medicines 
+VALUES 
+('MED001','Paracetamol',50), 
+('MED002','Amoxicillin',120), 
+('MED003','Vitamin C',80), 
+('MED004','Ibuprofen',100), 
+('MED005','Insulin',500); 
+ 
+Insert into Prescriptions 
+INSERT INTO Prescriptions 
+VALUES 
+('PRE001','APP001','MED001',10), 
+('PRE002','APP002','MED002',7), 
+('PRE003','APP003','MED004',15), 
+('PRE004','APP004','MED003',12), 
+('PRE005','APP005','MED005',5), 
+('PRE006','APP006','MED001',8), 
+('PRE007','APP007','MED003',6), 
+('PRE008','APP008','MED004',9); 
+ 
+Insert into Billing 
+INSERT INTO Billing 
+VALUES 
+('B001','APP001',3000,'Paid'), 
+('B002','APP002',9000,'Paid'), 
+('B003','APP003',60000,'Pending'), 
+('B004','APP004',1500,'Paid'), 
+('B005','APP005',7000,'Pending'), 
+('B006','APP006',1800,'Paid'), 
+('B007','APP007',1200,'Paid'), 
+('B008','APP008',2200,'Pending'); 
+ 
+ 
+1. Display all patient details using a CTE. 
+WITH PatientCTE AS 
+( 
+    SELECT * 
+    FROM Patients 
+) 
+SELECT * 
+FROM PatientCTE; 
+ 
+2. Display patients above the average age using a CTE. 
+WITH AvgAge AS 
+( 
+    SELECT AVG(age) AS average_age 
+    FROM Patients 
+) 
+SELECT p.* 
+FROM Patients p 
+JOIN AvgAge a 
+ON p.age > a.average_age; 
+ 
+3. Find doctors who handled more than one appointment using a CTE. 
+WITH DoctorAppointments AS 
+( 
+    SELECT doctor_id, 
+           COUNT(*) AS total_appointments 
+    FROM Appointments 
+    GROUP BY doctor_id 
+) 
+SELECT d.doctor_name, 
+       da.total_appointments 
+FROM Doctors d 
+JOIN DoctorAppointments da 
+ON d.doctor_id = da.doctor_id 
+WHERE da.total_appointments > 1; 
+ 
+4. Display the department-wise appointment count using a CTE. 
+WITH DepartmentAppointments AS 
+( 
+    SELECT d.department_id, 
+           dep.department_name, 
+           COUNT(a.appointment_id) AS appointment_count 
+    FROM Doctors d 
+    JOIN Departments dep 
+    ON d.department_id = dep.department_id 
+    LEFT JOIN Appointments a 
+    ON d.doctor_id = a.doctor_id 
+    GROUP BY d.department_id, dep.department_name 
+) 
+SELECT * 
+FROM DepartmentAppointments; 
+ 
+5. Find the top three treatment costs using a CTE. 
+WITH TreatmentRank AS 
+( 
+    SELECT treatment_name, 
+           cost 
+    FROM Treatments 
+    ORDER BY cost DESC 
+    LIMIT 3 
+) 
+SELECT * 
+FROM TreatmentRank; 
+ 
+6. Display patients who paid more than the average bill. 
+SELECT p.patient_name, 
+       b.total_amount 
+FROM Patients p 
+JOIN Appointments a 
+ON p.patient_id = a.patient_id 
+JOIN Billing b 
+ON a.appointment_id = b.appointment_id 
+WHERE b.total_amount > 
+( 
+    SELECT AVG(total_amount) 
+    FROM Billing 
+); 
+ 
+7. Display total revenue generated by each department. 
+SELECT dep.department_name, 
+       SUM(b.total_amount) AS total_revenue 
+FROM Departments dep 
+JOIN Doctors d 
+ON dep.department_id = d.department_id 
+JOIN Appointments a 
+ON d.doctor_id = a.doctor_id 
+JOIN Billing b 
+ON a.appointment_id = b.appointment_id 
+GROUP BY dep.department_name; 
+ 
+8. Find patients who visited multiple departments. 
+SELECT p.patient_name, 
+       COUNT(DISTINCT d.department_id) AS department_count 
+FROM Patients p 
+JOIN Appointments a 
+ON p.patient_id = a.patient_id 
+JOIN Doctors d 
+ON a.doctor_id = d.doctor_id 
+GROUP BY p.patient_id, p.patient_name 
+HAVING COUNT(DISTINCT d.department_id) > 1; 
+ 
+9. Display doctor-wise treatment counts. 
+SELECT d.doctor_name, 
+       COUNT(t.treatment_id) AS treatment_count 
+FROM Doctors d 
+JOIN Appointments a 
+ON d.doctor_id = a.doctor_id 
+JOIN Treatments t 
+ON a.appointment_id = t.appointment_id 
+GROUP BY d.doctor_name; 
+ 
+10. Find patients with pending bills. 
+SELECT p.patient_name, 
+       b.total_amount, 
+       b.payment_status 
+FROM Patients p 
+JOIN Appointments a 
+ON p.patient_id = a.patient_id 
+JOIN Billing b 
+ON a.appointment_id = b.appointment_id 
+WHERE b.payment_status = 'Pending'; 
+ 
+ 
+11. Display patient name, doctor name, and department. 
+SELECT p.patient_name, 
+       d.doctor_name, 
+       dep.department_name 
+FROM Patients p 
+JOIN Appointments a 
+ON p.patient_id = a.patient_id 
+JOIN Doctors d 
+ON a.doctor_id = d.doctor_id 
+JOIN Departments dep 
+ON d.department_id = dep.department_id; 
+ 
+12. Display patient name with treatment details. 
+SELECT p.patient_name, 
+       t.treatment_name, 
+       t.cost 
+FROM Patients p 
+JOIN Appointments a 
+ON p.patient_id = a.patient_id 
+JOIN Treatments t 
+ON a.appointment_id = t.appointment_id; 
+ 
+13. Display patient name with medicine details. 
+SELECT p.patient_name, 
+       m.medicine_name, 
+       m.price, 
+       pr.quantity 
+FROM Patients p 
+JOIN Appointments a 
+ON p.patient_id = a.patient_id 
+JOIN Prescriptions pr 
+ON a.appointment_id = pr.appointment_id 
+JOIN Medicines m 
+ON pr.medicine_id = m.medicine_id; 
+ 
+14. Display department-wise total billing. 
+SELECT dep.department_name, 
+       SUM(b.total_amount) AS total_billing 
+FROM Departments dep 
+JOIN Doctors d 
+ON dep.department_id = d.department_id 
+JOIN Appointments a 
+ON d.doctor_id = a.doctor_id 
+JOIN Billing b 
+ON a.appointment_id = b.appointment_id 
+GROUP BY dep.department_name; 
+ 
+15. Find the highest billed patient. 
+SELECT p.patient_name, 
+       b.total_amount 
+FROM Patients p 
+JOIN Appointments a 
+ON p.patient_id = a.patient_id 
+JOIN Billing b 
+ON a.appointment_id = b.appointment_id 
+WHERE b.total_amount = 
+( 
+    SELECT MAX(total_amount) 
+    FROM Billing 
+); 
+ 
+16. Display doctor-wise revenue. 
+SELECT d.doctor_name, 
+       SUM(b.total_amount) AS total_revenue 
+FROM Doctors d 
+JOIN Appointments a 
+ON d.doctor_id = a.doctor_id 
+JOIN Billing b 
+ON a.appointment_id = b.appointment_id 
+GROUP BY d.doctor_name; 
+ 
+17. Display all appointments with billing status. 
+SELECT a.appointment_id, 
+       p.patient_name, 
+       d.doctor_name, 
+FROM Departments dep 
+JOIN Doctors d 
+ON dep.department_id = d.department_id 
+JOIN Appointments a 
+ON d.doctor_id = a.doctor_id 
+GROUP BY dep.department_name; 
+ 
+ 
+21. Find patients whose bill is greater than the average bill. 
+SELECT p.patient_name, 
+       b.total_amount 
+FROM Patients p 
+JOIN Appointments a 
+ON p.patient_id = a.patient_id 
+JOIN Billing b 
+ON a.appointment_id = b.appointment_id 
+WHERE b.total_amount > 
+( 
+    SELECT AVG(total_amount) 
+    FROM Billing 
+); 
+ 
+22. Display doctors earning the highest department revenue. 
+SELECT d.doctor_name, 
+       dep.department_name, 
+       SUM(b.total_amount) AS revenue 
+FROM Doctors d 
+JOIN Departments dep 
+ON d.department_id = dep.department_id 
+JOIN Appointments a 
+ON d.doctor_id = a.doctor_id 
+JOIN Billing b 
+ON a.appointment_id = b.appointment_id 
+GROUP BY d.doctor_id, d.doctor_name, dep.department_name 
+HAVING SUM(b.total_amount) = 
+( 
+    SELECT MAX(revenue) 
+    FROM 
+    ( 
+        SELECT SUM(b.total_amount) AS revenue 
+        FROM Doctors d 
+        JOIN Appointments a 
+        ON d.doctor_id = a.doctor_id 
+        JOIN Billing b 
+        ON a.appointment_id = b.appointment_id 
+        GROUP BY d.doctor_id 
+    ) AS x 
+); 
+ 
+23. Find patients prescribed the most expensive medicine. 
+SELECT p.patient_name, 
+       m.medicine_name, 
+       m.price 
+FROM Patients p 
+JOIN Appointments a 
+ON p.patient_id = a.patient_id 
+JOIN Prescriptions pr 
+ON a.appointment_id = pr.appointment_id 
+JOIN Medicines m 
+ON pr.medicine_id = m.medicine_id 
+WHERE m.price = 
+( 
+    SELECT MAX(price) 
+    FROM Medicines 
+); 
+ 
+24. Display departments having above-average revenue. 
+SELECT dep.department_name, 
+       SUM(b.total_amount) AS revenue 
+FROM Departments dep 
+JOIN Doctors d 
+ON dep.department_id = d.department_id 
+JOIN Appointments a 
+ON d.doctor_id = a.doctor_id 
+JOIN Billing b 
+ON a.appointment_id = b.appointment_id 
+GROUP BY dep.department_id, dep.department_name 
+HAVING SUM(b.total_amount) > 
+( 
+    SELECT AVG(total_revenue) 
+    FROM 
+    ( 
+        SELECT SUM(b.total_amount) AS total_revenue 
+        FROM Departments dep 
+        JOIN Doctors d 
+        ON dep.department_id = d.department_id 
+        JOIN Appointments a 
+    ON p.patient_id = a.patient_id 
+    JOIN Doctors d 
+    ON a.doctor_id = d.doctor_id 
+    JOIN Departments dep 
+    ON d.department_id = dep.department_id 
+    LEFT JOIN Treatments t 
+    ON a.appointment_id = t.appointment_id 
+    LEFT JOIN Prescriptions pr 
+    ON a.appointment_id = pr.appointment_id 
+    LEFT JOIN Medicines m 
+    ON pr.medicine_id = m.medicine_id 
+    LEFT JOIN Billing b 
+    ON a.appointment_id = b.appointment_id 
+) 
+SELECT * 
+FROM HospitalReport; 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
